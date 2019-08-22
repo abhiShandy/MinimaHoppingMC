@@ -3,7 +3,7 @@ from scipy.stats import ortho_group
 
 def NPClusters(clusterShape, radiusNP, nParticles, nClusterMu, nClusterSigma, L):
 	if clusterShape=="random":
-		r0 = np.random.randn(nParticles, 3) * L[None,:]
+		r0 = np.random.rand(nParticles, 3) * L
 		radiusArr = np.ones(nParticles)*radiusNP
 	
 	elif clusterShape!="file":
@@ -45,9 +45,18 @@ def NPClusters(clusterShape, radiusNP, nParticles, nClusterMu, nClusterSigma, L)
 		radiusArr = np.ones(r0.shape[0])*radiusNP
 	
 	elif clusterShape=="file":
-		data = np.loadtxt("np.dat")
-		r0 = np.ones((data.shape[0],3))
-		r0[:,1:3] = data[:,:2]
-		radiusArr = data[:,2]
+		# first three columns are positions
+		try:
+			data = np.loadtxt("np.dat")
+		except:
+			print("Aborting: Couldn't find 'np.dat' containing particle positions")
+			exit()
+		r0 = data[:,:3]
+
+		# fourth optional column is radius
+		if data.shape[1]==4:
+			radiusArr = data[:,3]
+		else:
+			radiusArr = np.ones(data.shape[0])*radiusNP
 	
 	return r0, radiusArr
